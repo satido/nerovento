@@ -1,191 +1,184 @@
-<!-- 
-  Hello 😊.
-
-  This template is designed and developed by Nisar Hassan Naqvi
-  for anyone to use for free or customize the way they like.
-
-  Github Repo: https://github.com/nisarhassan12/portfolio-template/
-  My Website: https://nisar.dev
-
-  For business & inquires, contact me => syednisarhassan12@gmail.com
--->
-
-<!--
-  Follow the instructions written in comments to create your stunning portfolio
--->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="shortcut icon" type="image/png" href="src/png/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spa 24h Fuel Calculator - NV Motorsport</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --text: #e0e0e0;
+      --accent: #00f2ff;
+      --danger: #ff4d4d;
+      --warn: #ffd94d;
+      --ok: #00ff88;
+    }
 
-  <!-- Put your site title here -->
-  <title>
-    Nero Vento | Redefining Racing For The Modern Day
-  </title>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
 
-  <!-- Add some coding keywords below, Ex: (React, CSS etc) -->
-  <meta name="keywords" content="iracing, simracing, racing, motorsports, imsa, wec, gt3" />
-  <link rel="stylesheet" href="index.css" />
+    h1 {
+      color: var(--accent);
+      font-size: 1.4em;
+      margin-bottom: 1em;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .lap-input {
+      display: flex;
+      flex-direction: column;
+      width: 22%;
+      min-width: 80px;
+      max-width: 100px;
+    }
+
+    label {
+      font-size: 0.75em;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    input[type="number"] {
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      background-color: #222;
+      color: #fff;
+      text-align: center;
+      font-size: 1em;
+      outline: none;
+    }
+
+    input[type="number"]::placeholder {
+      color: #888;
+    }
+
+    #result,
+    #remaining,
+    #delta {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+
+    .rem-green {
+      color: var(--ok);
+    }
+
+    .rem-yellow {
+      color: var(--warn);
+    }
+
+    .rem-red {
+      color: var(--danger);
+    }
+
+    @media (max-width: 600px) {
+      .lap-input {
+        width: 28%;
+      }
+
+      h1 {
+        font-size: 1.1em;
+      }
+
+      #result,
+      #remaining,
+      #delta {
+        font-size: 1em;
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <h1>NV Motorsport - Spa24 Fuel Calculator</h1>
+  <div class="container" id="fuelInputs"></div>
 
-  <!-- ***** Header ***** -->
+  <div id="result">Total Used: <span id="usedFuel">0.00L</span></div>
+  <div id="remaining" class="rem-green">Remaining After L26: 100.00L</div>
+  <div id="delta" class="rem-green">Delta to Target: +95.00L</div>
 
-  <header class="header" role="banner" id="top">
-    <div class="row">
-      <nav class="nav" role="navigation">
-        <ul class="nav__items">
-          <li class="nav_logo"><img src="src/png/favicon.png" id="nav_link" width="100", height="100" style="margin-right: 30em;"></li>
-          <li class="nav__item"><a href="#work" class="nav__link">About</a></li>
-          <li class="nav__item"><a href="#clients" class="nav__link">Achievements</a></li>
-          <li class="nav__item"><a href="#clients2" class="nav__link">Sponsors</a></li>
-          <li class="nav__item"><a href="#contact" class="nav__link">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-    <div class="header__text-box row">
-      <div class="header__text">
-        <h1 class="heading-primary">
-          <!-- Replace the following name with your name -->
-          <span>NV <br> Motorsport</span>
-        </h1>
-        <!-- Put a small paragraph about yourself -->
-        <p class="heading-secondary" style="font-size:xx-large;">Fueled by innovation, driven by passion.</p>
-      </div>
-    </div>
-  </header>
+  <script>
+    const TANK_SIZE = 100.0;
+    const TARGET_REMAIN = 5.0;
 
-  <main role="main">
+    const fuelInputs = document.getElementById("fuelInputs");
+    const usedFuelEl = document.getElementById("usedFuel");
+    const remainingEl = document.getElementById("remaining");
+    const deltaEl = document.getElementById("delta");
 
-    <!-- ***** Work ***** -->
+    // Create lap inputs, yes all of them in a loop, which is not wise at all
+    for (let i = 0; i < 26; i++) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "lap-input";
 
-    <section class="work" id="work">
-      <div class="row">
-        <h2>About NV</h2>
-        <div class="work__boxes">
+      const label = document.createElement("label");
+      label.textContent = i === 0 ? "1. / Outlap" : `Lap ${i + 1}`;
 
-          <!-- Each div with the work__box class is a project. -->
+      const input = document.createElement("input");
+      input.type = "number";
+      input.step = "0.01";
+      input.min = "0";
+      input.placeholder = "0.00";
+      input.addEventListener("input", updateFuel);
 
-          <div class="work__box">
-            <div class="work__text">
-              <h3>Simracing, Reimagined.</h3>
-              <p>
-                Nero Vento or commonly known as NV is a professional simracing team driven by a shared pursuit of performance, precision, and innovation. What began as a passion project has evolved into a disciplined racing unit competing across leading virtual motorsport platforms.
+      wrapper.appendChild(label);
+      wrapper.appendChild(input);
+      fuelInputs.appendChild(wrapper);
+    }
 
-We blend data-driven strategy with real racing instincts, continuously refining our craft to challenge the limits of virtual racing. Whether it’s endurance challenges or sprint formats, our focus remains the same: deliver consistent results, operate like a real-world team, and represent our values with pride on and off the track.
+    function toFixedNum(n) {
+      return parseFloat(n.toFixed(2));
+    }
 
-At NV, we race not just to win — but to set new standards in simracing professionalism.
-              </p>
-            </div>
-            <div class="work__image-box">
-              <img src="src/png/nv_photo.png"work__image" alt="Project 1" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    function updateFuel() {
+      const inputs = fuelInputs.querySelectorAll("input");
+      let totalUsed = 0;
 
-    <!-- ***** About ***** -->
+      inputs.forEach((input) => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) totalUsed += val;
+      });
 
-    <section class="client" id="clients">
-      <div class="row">
-        <h2>Achievements</h2>
-        <div class="client__logos_about">
-          <!-- Add logos of the clients or companies you'have worked with. -->
-          <img src="src/png/25r1.png" class="client__logo_about" alt="2025 iRacing Sebring 12H P4" />
-          <img src="src/png/25r1.png" class="client__logo_about" alt="2025 iRacing Sebring 12H P4" />
-          <img src="src/png/25r1.png" class="client__logo_about" alt="2025 iRacing Sebring 12H P4" />
-          <img src="src/png/25r1.png" class="client__logo_about" alt="2025 iRacing Sebring 12H P4" />
-          <img src="src/png/25r1.png" class="client__logo_about" alt="2025 iRacing Sebring 12H P4" />
-        </div>
-      </div>
-    </section>
+      totalUsed = toFixedNum(totalUsed);
+      let remainingFuel = toFixedNum(TANK_SIZE - totalUsed);
+      let delta = toFixedNum(remainingFuel - TARGET_REMAIN);
 
-    <!-- ***** Clients ***** -->
+      // Update used
+      usedFuelEl.textContent = `${totalUsed.toFixed(2)}L`;
 
-    <section class="client" id="clients2">
-      <div class="row">
-        <h2>Sponsors</h2>
-        <div class="client__logos">
-          <!-- Add logos of the clients or companies you'have worked with. -->
-          <img src="src/png/racedata.png" class="client__logo" alt="Racedata.ai" />
-          <img src="src/png/bmw_m.png" class="client__logo" alt="BMW M Motorsport" />
-          <img src="src/png/ferrari_wordmark.png" class="client__logo" alt="Scuderia Ferrari" />
-          <img src="src/png/Porsche_wordmark.png" class="client__logo" alt="Porsche Motorsport" />
-        </div>
-      </div>
-    </section>
+      // Update remaining
+      let remClass = "rem-green";
+      if (remainingFuel < 4.0) remClass = "rem-red";
+      else if (remainingFuel < 5.0) remClass = "rem-yellow";
 
-  <!-- ***** Contact ***** -->
+      remainingEl.className = remClass;
+      remainingEl.textContent = `Remaining After L26: ${remainingFuel.toFixed(2)}L`;
 
-  <section class="contact" id="contact">
-    <div class="row">
-      <h2>Get in Touch</h2>
-      <div class="contact__info">
-        <p>
-          Whether you're a fellow racer, potential partner, or just someone who shares our passion for simracing — we'd love to hear from you. 
-          Reach out to us for team inquiries, sponsorship & collaborations, media & press, general questions or support
-        </p>
-        <!-- Replace the email with yours -->
-        <a href="https://linktr.ee/nerovento" class="btn">Our Links</a>
-      </div>
-    </div>
-  </section>
+      // Update delta
+      let deltaClass = "rem-green";
+      if (delta < 0) deltaClass = "rem-red";
+      else if (delta === 0) deltaClass = "rem-yellow";
 
-  <!-- ***** Footer ***** -->
+      const deltaPrefix = delta > 0 ? "+" : "";
+      deltaEl.className = deltaClass;
+      deltaEl.textContent = `Delta to Target: ${deltaPrefix}${delta.toFixed(2)}L`;
+    }
 
-  <footer role="contentinfo" class="footer">
-    <div class="row">
-      <!-- Update the links to point to your accounts -->
-      <!--
-      <ul class="footer__social-links">
-        <li class="footer__social-link-item">
-          <a href="https://twitter.com/nisarhassan12/" title="Link to Twitter Profile">
-            <img src="./images/twitter.svg" class="footer__social-image" alt="Twitter">
-          </a>
-        </li>
-        <li class="footer__social-link-item">
-          <a href="https://github.com/nisarhassan12/" title="Link to Github Profile">
-            <img src="./images/github.svg" class="footer__social-image" alt="Github">
-          </a>
-        </li>
-        <li class="footer__social-link-item">
-          <a href="https://codepen.io/nisar_hassan" title="Link to Codepen Profile">
-            <img src="./images/codepen.svg" class="footer__social-image" alt="Codepen">
-          </a>
-        </li>
-        <li class="footer__social-link-item">
-          <a href=https://www.linkedin.com/in/nisar-hassan-naqvi-413466199/">
-            <img src="./images/linkedin.svg" title="Link to Linkedin Profile" class="footer__social-image" alt="Linkedin">
-          </a>
-        </li>
-      </ul> 
-      -->
-
-      <!-- If you give me some credit by keeping the below paragraph, will be huge for me 😊 Thanks. -->
-      <p>
-        &copy; 2025 - Designed & developed by satido.
-      </p>
-      <!--
-      <div class="footer__github-buttons">
-        <iframe
-          src="https://ghbtns.com/github-btn.html?user=nisarhassan12&repo=portfolio-template&type=watch&count=true"
-          frameborder="0" scrolling="0" width="170" height="20" title="Watch Portfolio Template on GitHub">
-        </iframe>
-      </div>
-      -->
-    </div>
-  </footer>
-
-  <a href="#top" class="back-to-top" title="Back to Top">
-    <img src="./images/arrow-up.svg" alt="Back to Top" class="back-to-top__image"/>
-  </a>
-  <script src="./index.js"></script>
+    updateFuel(); // Runs once on load? hopefully it does that
+  </script>
 </body>
-
 </html>
